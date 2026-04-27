@@ -87,24 +87,21 @@ $$
 ## 3.1 数据准备结果
 
 经过 Schema 强类型读取，Bronze 表共 7,043 条记录、21 列，与 IBM 原始数据集大小完全一致。
-
-[Show Image](https://claude.ai/assets/images/E203C2C81E6F4E43BA9B82C874751556.png)
-
-Show Image
+![原始 CSV 文件下载成功](/assets/images/1.png)
+![Bronze 表的前 5 行预览与总记录数 7,043](/assets/images/2.png)
 
 经过清洗（`Contract = 'Month-to-month'` + `InternetService != 'No'` + Churn 字段二值化）后，Silver 表共保留 3,351 条记录，约占 Bronze 表的 47.6%。被剔除的 3,692 条客户主要为长期合约（One year / Two year）或无互联网业务客户。
 
-Show Image
-
+![Silver 表清洗前后对比与前 5 行预览](/assets/images/3.png)
 ## 3.2 Kaplan–Meier 整体生存分析
 
 对 Silver 表的 3,351 条记录整体进行 KM 拟合，模型摘要如下：观测样本数 3,351，其中事件已发生（流失）样本数 1,556，右删失（仍在网）样本数 1,795，删失比例约为 53.6%。这一显著的删失比例从结构上证明了使用生存分析（而非简单 logistic 回归）的必要性——若忽视删失观测，将系统性低估客户生命周期。
 
-Show Image
+![KM 拟合摘要](/assets/images/4.png)
+![整体 Kaplan–Meier 生存曲线]
 
 整体生存曲线呈现典型的右偏阶梯状：
-
-Show Image
+![整体 Kaplan–Meier 生存曲线](/assets/images/5.png)
 
 由曲线可读取以下关键结论：
 
@@ -123,7 +120,7 @@ Show Image
 | 48       | 0.3872        | 四年存留率 38.7%           |
 | 60       | 0.2890        | 五年存留率 28.9%           |
 
-Show Image
+![关键时点生存概率](/assets/images/6.png)
 
 ## 3.3 分组生存分析与 Log-rank 检验
 
@@ -138,7 +135,7 @@ Show Image
 
 ### 3.3.1 性别：无显著差异
 
-Show Image
+![按 gender 分组的 KM 曲线与 log-rank 检验](/assets/images/7.png)
 
 男女两组生存曲线在视觉上高度重叠，置信区间相互覆盖；log-rank 检验 p\=0.153\>0.05，不能拒绝原假设。这表明客户性别本身对流失行为没有统计学显著的影响，与人口统计学先验一致——服务订阅决策不应受性别直接驱动。
 
@@ -146,7 +143,7 @@ Show Image
 
 ### 3.3.2 互联网类型：DSL 优于 Fiber optic
 
-Show Image
+![按 internetService 分组的 KM 曲线](/assets/images/8.png)
 
 两条曲线呈现出明显且持续扩大的差距：DSL 客户的生存曲线始终位于 Fiber optic 之上，且差距在 24 个月后扩大到约 0.15 的绝对差。Log-rank 检验 p≈5.24×10⁻⁷ 极度显著。
 
@@ -154,13 +151,13 @@ Show Image
 
 ### 3.3.3 技术支持：粘性效应显著
 
-Show Image
+![按 techSupport 分组的 KM 曲线](/assets/images/9.png)
 
 订阅技术支持的客户（Yes）生存率显著高于未订阅者（No），两条曲线从入网早期就拉开明显差距，且这一差距在整个观察期内维持。Log-rank 检验 p≈1.92×10⁻²¹ 是本研究中最显著的分组效应。
 
 ### 3.3.4 家属状态：有家属的客户更稳定
 
-Show Image
+![按 dependents 分组的 KM 曲线](/assets/images/10.png)
 
 有家属的客户生存曲线持续高于无家属客户，log-rank p≈3.24×10⁻⁹ 极显著。这与家庭客户在转网时面临更高的协调成本（多设备、多账户）的常识一致。
 
@@ -176,7 +173,7 @@ KM 分析阶段已经识别出三大类对客户流失有显著影响的协变�
 
 ### 3.4.2 拟合结果
 
-Show Image
+![Cox PH 完整摘要](/assets/images/11.png)
 
 回归系数表如下：
 
@@ -189,7 +186,7 @@ Show Image
 
 模型整体拟合指标：Concordance index \= 0.64；Partial AIC \= 22639.90；log-likelihood ratio test \= 337.77 on 4 df（极显著），表明四变量联合贡献远超基线。
 
-Show Image
+![Cox PH 系数 forest plot](/assets/images/12.png)
 
 关键发现：
 
@@ -210,7 +207,7 @@ Cox PH 模型的有效性依赖于"协变量对风险的影响在时间上恒定
 | onlineBackup\_Yes    | 2.91×10⁻⁵ | 是 ✗                            |
 | techSupport\_Yes     | 2.08×10⁻⁴ | 是 ✗                            |
 
-Show Image
+![PH 假设检验结果](/assets/images/13.png)
 
 结论：四个协变量中有三个违反了 PH 假设，仅 dependents\_Yes 满足。这意味着 internetService、onlineBackup、techSupport 对客户流失风险的影响并非时间恒定的——例如，技术支持的保护效应在客户入网早期可能更强，而在长期客户中作用相对衰减。
 
@@ -222,7 +219,7 @@ Show Image
 
 ### 3.5.1 拟合结果
 
-Show Image
+![Weibull AFT 完整摘要](/assets/images/14.png)
 
 AFT 模型对相同的四个协变量进行拟合，所有变量 p 值均 \< 0.005。结果如下（lambda\_ 部分为协变量系数）：
 
@@ -236,7 +233,7 @@ AFT 模型对相同的四个协变量进行拟合，所有变量 p 值均 \< 0.0
 
 Weibull 形状参数 ρ 由 rho\_intercept \= -0.22 反算为 ρ\=e⁻⁰·²²≈0.80。整体模型 Concordance index \= 0.64，AIC \= 14219.57。
 
-Show Image
+![AFT 系数 forest plot](/assets/images/15.png)
 
 ### 3.5.2 业务解读
 
