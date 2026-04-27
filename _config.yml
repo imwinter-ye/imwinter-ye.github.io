@@ -1,0 +1,25 @@
+title: Yuhuan Jiang's Blog
+email: 1747587866@qq.com
+description: >-
+  Personal blog showcasing data science projects, research notes, and tutorials.
+  SUSTech | Data Science & Big Data Technology
+url: "https://yuhuanjiang.me"
+github_username: imwinter-ye
+
+theme: minima
+plugins:
+  - jekyll-feed
+
+minima:
+  date_format: "%Y-%m-%d"
+  social_links:
+    - { platform: github, user_url: "https://github.com/imwinter-ye" }
+
+permalink: /:year/:month/:day/:title:output_ext
+
+defaults:
+  - scope:
+      path: ""
+      type: "posts"
+    values:
+      layout: "post"
